@@ -1,13 +1,93 @@
 import React, { useEffect, useRef, useState } from 'react'
 import PropTypes, { number } from 'prop-types'
 
-import { CCol, CRow, CWidgetStatsA } from '@coreui/react'
+import {
+  CCol,
+  CModal,
+  CModalBody,
+  CModalHeader,
+  CModalTitle,
+  CRow,
+  CTable,
+  CWidgetStatsA,
+} from '@coreui/react'
 import { getStyle } from '@coreui/utils'
-import { CChartBar, CChartLine } from '@coreui/react-chartjs'
+import { CChartLine } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
 import { cilArrowBottom, cilArrowTop } from '@coreui/icons'
 import { w3cwebsocket as W3CWebSocket } from 'websocket'
 import axios from 'axios'
+
+const SchedulerItem = {
+  schedulerName: 'string',
+  numCycles: 'string',
+  startTime: 'string',
+  endTime: 'string',
+  flow1: 'string',
+  flow2: 'string',
+  flow3: 'string',
+}
+
+const SchedulerTable = ({ schedulers }) => {
+  const columns = [
+    {
+      key: 'id',
+      label: '#',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'schedulerName',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'numCycles',
+      label: 'Number Of Cycle(s)',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'startTime',
+      label: 'Start Time',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'endTime',
+      label: 'End Time',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'flow1',
+      label: 'Flow 1',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'flow2',
+      label: 'Flow 2',
+      _props: { scope: 'col' },
+    },
+    {
+      key: 'flow3',
+      label: 'Flow 3',
+      _props: { scope: 'col' },
+    },
+  ]
+  const items = schedulers.map((item, index) => ({
+    id: index + 1,
+    schedulerName: item.schedulerName ?? '',
+    numCycles: item.numCycles ?? '',
+    startTime: item.startTime ?? '',
+    endTime: item.endTime ?? '',
+    flow1: item.flow1 ?? '',
+    flow2: item.flow2 ?? '',
+    flow3: item.flow3 ?? '',
+    _cellProps: { id: { scope: 'row' } },
+  }))
+
+  return <CTable striped columns={columns} items={items} />
+}
+
+SchedulerTable.propTypes = {
+  schedulers: PropTypes.arrayOf(PropTypes.shape(SchedulerItem)).isRequired,
+}
 
 const WidgetsDropdown = (props) => {
   const widgetChartRef1 = useRef(null)
@@ -68,7 +148,7 @@ const WidgetsDropdown = (props) => {
         setHumidity(data['humidity'])
       } else if (type[0] === 'temperature') {
         setTemperature(data['temperature'])
-      } else setScheduler({})
+      } else setScheduler(data['scheduler'])
     }
 
     client.onclose = () => {
@@ -79,9 +159,23 @@ const WidgetsDropdown = (props) => {
       client.close()
     }
   }, [])
+  const [visible, setVisible] = useState(false)
 
   return (
     <CRow className={props.className} xs={{ gutter: 4 }}>
+      <CModal
+        visible={visible}
+        size="lg"
+        onClose={() => setVisible(false)}
+        aria-labelledby="LiveDemoExampleLabel"
+      >
+        <CModalHeader>
+          <CModalTitle id="LiveDemoExampleLabel">Current Scheduler</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <SchedulerTable schedulers={scheduler ? scheduler : latestData.scheduler} />
+        </CModalBody>
+      </CModal>
       <CCol sm={6} xl={4} style={{ flex: '1 1 auto' }} xxl={3}>
         <CWidgetStatsA
           color="primary"
@@ -240,7 +334,12 @@ const WidgetsDropdown = (props) => {
           color="warning"
           value={
             <>
-              Is Active
+              <span
+                style={{ textDecoration: 'underline', cursor: 'pointer' }}
+                onClick={() => setVisible(true)}
+              >
+                Is Active
+              </span>
               <span className="fs-6 fw-normal">
                 (84.7% <CIcon icon={cilArrowTop} />)
               </span>

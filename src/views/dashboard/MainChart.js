@@ -1,10 +1,29 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { CChartLine } from '@coreui/react-chartjs'
 import { getStyle } from '@coreui/utils'
+import axios from 'axios'
 
 const MainChart = () => {
   const chartRef = useRef(null)
+
+  const [chartData, setChartData] = useState({
+    temperature: [],
+    humidity: [],
+  })
+
+  useEffect(() => {
+    const fetchChartData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/chart-data')
+        setChartData(response.data)
+      } catch (error) {
+        console.error('Error fetching chart data:', error)
+      }
+    }
+
+    fetchChartData()
+  }, [])
 
   useEffect(() => {
     document.documentElement.addEventListener('ColorSchemeChange', () => {
@@ -26,57 +45,30 @@ const MainChart = () => {
     })
   }, [chartRef])
 
-  const random = () => Math.round(Math.random() * 100)
-
   return (
     <>
       <CChartLine
         ref={chartRef}
         style={{ height: '300px', marginTop: '40px' }}
         data={{
-          labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+          labels: ['12:00 AM', '3:00 AM', '6:00 AM', '9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM'],
           datasets: [
             {
-              label: 'My First dataset',
+              label: 'Temperature',
               backgroundColor: `rgba(${getStyle('--cui-info-rgb')}, .1)`,
               borderColor: getStyle('--cui-info'),
               pointHoverBackgroundColor: getStyle('--cui-info'),
               borderWidth: 2,
-              data: [
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-              ],
+              data: chartData.temperature.length > 0 ? chartData.temperature : [],
               fill: true,
             },
             {
-              label: 'My Second dataset',
+              label: 'Humidity',
               backgroundColor: 'transparent',
               borderColor: getStyle('--cui-success'),
               pointHoverBackgroundColor: getStyle('--cui-success'),
               borderWidth: 2,
-              data: [
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-                random(50, 200),
-              ],
-            },
-            {
-              label: 'My Third dataset',
-              backgroundColor: 'transparent',
-              borderColor: getStyle('--cui-danger'),
-              pointHoverBackgroundColor: getStyle('--cui-danger'),
-              borderWidth: 1,
-              borderDash: [8, 5],
-              data: [65, 65, 65, 65, 65, 65, 65],
+              data: chartData.humidity.length > 0 ? chartData.humidity : [],
             },
           ],
         }}
@@ -105,7 +97,7 @@ const MainChart = () => {
               grid: {
                 color: getStyle('--cui-border-color-translucent'),
               },
-              max: 250,
+              max: Math.max(chartData.temperature),
               ticks: {
                 color: getStyle('--cui-body-color'),
                 maxTicksLimit: 5,

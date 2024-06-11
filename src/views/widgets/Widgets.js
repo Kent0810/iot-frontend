@@ -735,9 +735,6 @@ const Widgets = () => {
           </CRow>
         </DocsExample>
         <DocsExample href="components/widgets/#cwidgetstatsd">
-          <WidgetsBrand />
-        </DocsExample>
-        <DocsExample href="components/widgets/#cwidgetstatsd">
           <WidgetsBrand withCharts />
         </DocsExample>
         <DocsExample href="components/widgets/#cwidgetstatsc">

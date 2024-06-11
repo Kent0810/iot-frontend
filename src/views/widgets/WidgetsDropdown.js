@@ -40,8 +40,8 @@ const SchedulerTable = ({ schedulers }) => {
       _props: { scope: 'col' },
     },
     {
-      key: 'numCycles',
-      label: 'Number Of Cycle(s)',
+      key: 'cycles',
+      label: 'Cycles',
       _props: { scope: 'col' },
     },
     {
@@ -50,8 +50,8 @@ const SchedulerTable = ({ schedulers }) => {
       _props: { scope: 'col' },
     },
     {
-      key: 'endTime',
-      label: 'End Time',
+      key: 'stopTime',
+      label: 'Stop Time',
       _props: { scope: 'col' },
     },
     {
@@ -73,9 +73,9 @@ const SchedulerTable = ({ schedulers }) => {
   const items = schedulers.map((item, index) => ({
     id: index + 1,
     schedulerName: item.schedulerName ?? '',
-    numCycles: item.numCycles ?? '',
+    cycles: item.numCycles ?? '',
     startTime: item.startTime ?? '',
-    endTime: item.endTime ?? '',
+    stopTime: item.endTime ?? '',
     flow1: item.flow1 ?? '',
     flow2: item.flow2 ?? '',
     flow3: item.flow3 ?? '',
@@ -99,7 +99,7 @@ const WidgetsDropdown = (props) => {
   const [latestData, setLatestData] = useState({
     temperature: number,
     humidity: number,
-    scheduler: {},
+    schedules: {},
   })
   useEffect(() => {
     document.documentElement.addEventListener('ColorSchemeChange', () => {
@@ -148,7 +148,7 @@ const WidgetsDropdown = (props) => {
         setHumidity(data['humidity'])
       } else if (type[0] === 'temperature') {
         setTemperature(data['temperature'])
-      } else setScheduler(data['scheduler'])
+      } else setScheduler(data['schedules'])
     }
 
     client.onclose = () => {
@@ -173,7 +173,7 @@ const WidgetsDropdown = (props) => {
           <CModalTitle id="LiveDemoExampleLabel">Current Scheduler</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <SchedulerTable schedulers={scheduler ? scheduler : latestData.scheduler} />
+          <SchedulerTable schedulers={scheduler ? scheduler : latestData.schedules} />
         </CModalBody>
       </CModal>
       <CCol sm={6} xl={4} style={{ flex: '1 1 auto' }} xxl={3}>
